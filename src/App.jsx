@@ -19,17 +19,15 @@ const firebaseConfig = {
 
 const CLASSES = ["가람반", "나리반", "다솜반", "라온반", "마루반", "바름반", "사랑반"];
 const SET_COUNT = 5;
-const ADMIN_PASSWORD = "1234"; // 여기 숫자를 원하는 관리자 비밀번호로 바꾸세요.
+const ADMIN_PASSWORD = "1234"; // 원하는 관리자 비밀번호로 바꾸세요.
 const WRITE_TIMEOUT_MS = 8000;
 
 const firebaseApp = initializeApp(firebaseConfig);
-
 const db = initializeFirestore(firebaseApp, {
   experimentalForceLongPolling: true,
   useFetchStreams: false,
 });
-
-const leagueDocRef = doc(db, "leagues", "grade6-badminton");
+const leagueDocRef = doc(db, "leagues", "grade4-basketball");
 
 function buildInitialTeams() {
   return CLASSES.map((name) => ({
@@ -77,13 +75,10 @@ function sortTeams(teams) {
   return [...teams].sort((a, b) => {
     const rateDiff = winRate(b) - winRate(a);
     if (rateDiff !== 0) return rateDiff;
-
     const diff = setDiff(b) - setDiff(a);
     if (diff !== 0) return diff;
-
     if (b.setWins !== a.setWins) return b.setWins - a.setWins;
     if (b.matchWins !== a.matchWins) return b.matchWins - a.matchWins;
-
     return a.name.localeCompare(b.name, "ko");
   });
 }
@@ -125,9 +120,9 @@ export default function App() {
   const aSetWins = sets.filter((winner) => winner === teamA).length;
   const bSetWins = sets.filter((winner) => winner === teamB).length;
   const matchWinner = selectedBoth && completeSets ? (aSetWins > bSetWins ? teamA : teamB) : "";
-  const canSubmit = canEdit && selectedBoth && completeSets && aSetWins !== bSetWins && !saving;
   const ranking = useMemo(() => sortTeams(teams), [teams]);
   const canEdit = isAdmin && adminUnlocked;
+  const canSubmit = canEdit && selectedBoth && completeSets && aSetWins !== bSetWins && !saving;
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -255,15 +250,23 @@ export default function App() {
     await saveLeague(emptyTeams, emptyHistory, "초기화 완료 · 학생 화면에 반영됨");
   }
 
+  function unlockAdmin() {
+    if (adminPassword === ADMIN_PASSWORD) {
+      setAdminUnlocked(true);
+    } else {
+      alert("비밀번호가 틀렸습니다.");
+    }
+  }
+
   const statusClass = status.includes("실패") ? "status error" : "status";
 
   return (
     <main className="page">
       <section className="app-shell">
         <header className="header">
-          <div className="logo">🏸</div>
+          <div className="logo">🏀</div>
           <div>
-            <h1>6학년 배드민턴 리그전</h1>
+            <h1>4학년 농구 리그전</h1>
             <p>{isAdmin ? "관리자 화면" : "실시간 순위표"}</p>
             <p className={statusClass}>{status}</p>
             {lastSaved && <p className="last-saved">마지막 저장: {lastSaved}</p>}
@@ -274,6 +277,26 @@ export default function App() {
           <section className="error-box">
             <strong>Firebase 오류</strong>
             <p>{error}</p>
+          </section>
+        )}
+
+        {isAdmin && !canEdit && (
+          <section className="card">
+            <h2>관리자 비밀번호</h2>
+            <p className="password-guide">경기 결과 입력은 관리자만 할 수 있습니다.</p>
+            <input
+              className="password-input"
+              type="password"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              placeholder="비밀번호 입력"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") unlockAdmin();
+              }}
+            />
+            <button className="submit-button" type="button" onClick={unlockAdmin}>
+              관리자 입장
+            </button>
           </section>
         )}
 
