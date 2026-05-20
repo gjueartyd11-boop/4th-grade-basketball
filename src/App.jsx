@@ -19,14 +19,15 @@ const firebaseConfig = {
 
 const CLASSES = ["가람반", "나리반", "다솜반", "라온반", "마루반", "바름반", "사랑반"];
 const SET_COUNT = 5;
-const ADMIN_PASSWORD = "1234"; // 원하는 관리자 비밀번호로 바꾸세요.
 const WRITE_TIMEOUT_MS = 8000;
 
 const firebaseApp = initializeApp(firebaseConfig);
+
 const db = initializeFirestore(firebaseApp, {
   experimentalForceLongPolling: true,
   useFetchStreams: false,
 });
+
 const leagueDocRef = doc(db, "leagues", "grade4-basketball");
 
 function buildInitialTeams() {
@@ -75,10 +76,13 @@ function sortTeams(teams) {
   return [...teams].sort((a, b) => {
     const rateDiff = winRate(b) - winRate(a);
     if (rateDiff !== 0) return rateDiff;
+
     const diff = setDiff(b) - setDiff(a);
     if (diff !== 0) return diff;
+
     if (b.setWins !== a.setWins) return b.setWins - a.setWins;
     if (b.matchWins !== a.matchWins) return b.matchWins - a.matchWins;
+
     return a.name.localeCompare(b.name, "ko");
   });
 }
@@ -112,17 +116,14 @@ export default function App() {
   const [error, setError] = useState("");
   const [lastSaved, setLastSaved] = useState("");
   const [saving, setSaving] = useState(false);
-  const [adminPassword, setAdminPassword] = useState("");
-  const [adminUnlocked, setAdminUnlocked] = useState(false);
 
   const selectedBoth = teamA && teamB && teamA !== teamB;
   const completeSets = sets.every(Boolean);
   const aSetWins = sets.filter((winner) => winner === teamA).length;
   const bSetWins = sets.filter((winner) => winner === teamB).length;
   const matchWinner = selectedBoth && completeSets ? (aSetWins > bSetWins ? teamA : teamB) : "";
+  const canSubmit = isAdmin && selectedBoth && completeSets && aSetWins !== bSetWins && !saving;
   const ranking = useMemo(() => sortTeams(teams), [teams]);
-  const canEdit = isAdmin && adminUnlocked;
-  const canSubmit = canEdit && selectedBoth && completeSets && aSetWins !== bSetWins && !saving;
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -235,7 +236,7 @@ export default function App() {
   }
 
   async function resetAll() {
-    if (!canEdit) return;
+    if (!isAdmin) return;
     if (!window.confirm("모든 경기 기록과 순위를 초기화할까요?")) return;
 
     const emptyTeams = buildInitialTeams();
@@ -250,14 +251,6 @@ export default function App() {
     await saveLeague(emptyTeams, emptyHistory, "초기화 완료 · 학생 화면에 반영됨");
   }
 
-  function unlockAdmin() {
-    if (adminPassword === ADMIN_PASSWORD) {
-      setAdminUnlocked(true);
-    } else {
-      alert("비밀번호가 틀렸습니다.");
-    }
-  }
-
   const statusClass = status.includes("실패") ? "status error" : "status";
 
   return (
@@ -267,7 +260,7 @@ export default function App() {
           <div className="logo">🏀</div>
           <div>
             <h1>4학년 농구 리그전</h1>
-            <p>{isAdmin ? "관리자 화면" : "실시간 순위표"}</p>
+            <p>{isAdmin ? "관리자 입력 화면" : "실시간 순위표"}</p>
             <p className={statusClass}>{status}</p>
             {lastSaved && <p className="last-saved">마지막 저장: {lastSaved}</p>}
           </div>
@@ -280,27 +273,7 @@ export default function App() {
           </section>
         )}
 
-        {isAdmin && !canEdit && (
-          <section className="card">
-            <h2>관리자 비밀번호</h2>
-            <p className="password-guide">경기 결과 입력은 관리자만 할 수 있습니다.</p>
-            <input
-              className="password-input"
-              type="password"
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-              placeholder="비밀번호 입력"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") unlockAdmin();
-              }}
-            />
-            <button className="submit-button" type="button" onClick={unlockAdmin}>
-              관리자 입장
-            </button>
-          </section>
-        )}
-
-        {canEdit && (
+        {isAdmin && (
           <section className="card">
             <div className="select-grid">
               <label>
@@ -373,7 +346,7 @@ export default function App() {
         <section className="card">
           <div className="section-head">
             <h2>🏆 순위</h2>
-            {canEdit && <button className="reset-button" type="button" onClick={resetAll}>초기화</button>}
+            {isAdmin && <button className="reset-button" type="button" onClick={resetAll}>초기화</button>}
           </div>
 
           <div className="podium">

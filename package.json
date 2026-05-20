@@ -1,7 +1,7 @@
 {
-  "name": "grade4-basketball-password-clean",
+  "name": "grade6-badminton-correct-projectid",
   "private": true,
-  "version": "2.0.0",
+  "version": "1.8.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
