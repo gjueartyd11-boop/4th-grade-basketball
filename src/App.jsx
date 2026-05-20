@@ -257,7 +257,7 @@ export default function App() {
     <main className="page">
       <section className="app-shell">
         <header className="header">
-          <div className="logo">🏸</div>
+          <div className="logo">🏀</div>
           <div>
             <h1>4학년 농구 리그전</h1>
             <p>{isAdmin ? "관리자 입력 화면" : "실시간 순위표"}</p>
