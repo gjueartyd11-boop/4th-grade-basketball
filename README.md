@@ -1,4 +1,4 @@
-# 4학년 농구 리그전 - projectId 수정본
+# 6학년 배드민턴 리그전 - projectId 수정본
 
 ## 수정 내용
 Firebase projectId를 아래 값으로 수정했습니다.
@@ -15,7 +15,7 @@ https://배포주소.vercel.app?admin=1
 ## Firebase 확인
 Firestore Database에 저장되면 아래 문서가 생깁니다.
 
-leagues / grade4-basketball
+leagues / grade6-badminton
 
 ## Firestore Rules
 테스트용으로 아래 규칙을 게시하세요.

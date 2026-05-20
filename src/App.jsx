@@ -19,7 +19,7 @@ const firebaseConfig = {
 
 const CLASSES = ["가람반", "나리반", "다솜반", "라온반", "마루반", "바름반", "사랑반"];
 const SET_COUNT = 5;
-const ADMIN_PASSWORD = "20110926"; // 여기 숫자를 원하는 관리자 비밀번호로 바꾸세요.
+const ADMIN_PASSWORD = "1234"; // 여기 숫자를 원하는 관리자 비밀번호로 바꾸세요.
 const WRITE_TIMEOUT_MS = 8000;
 
 const firebaseApp = initializeApp(firebaseConfig);
@@ -29,7 +29,7 @@ const db = initializeFirestore(firebaseApp, {
   useFetchStreams: false,
 });
 
-const leagueDocRef = doc(db, "leagues", "grade4-basketball");
+const leagueDocRef = doc(db, "leagues", "grade6-badminton");
 
 function buildInitialTeams() {
   return CLASSES.map((name) => ({
@@ -261,9 +261,9 @@ export default function App() {
     <main className="page">
       <section className="app-shell">
         <header className="header">
-          <div className="logo">🏀</div>
+          <div className="logo">🏸</div>
           <div>
-            <h1>4학년 농구 리그전</h1>
+            <h1>6학년 배드민턴 리그전</h1>
             <p>{isAdmin ? "관리자 화면" : "실시간 순위표"}</p>
             <p className={statusClass}>{status}</p>
             {lastSaved && <p className="last-saved">마지막 저장: {lastSaved}</p>}
