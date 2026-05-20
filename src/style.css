@@ -68,3 +68,30 @@ th:nth-child(2), td:nth-child(2) { text-align: left; }
   table { font-size: 12px; }
   .podium-item strong { font-size: 15px; }
 }
+
+
+.password-guide {
+  margin: 8px 0 12px;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.password-input {
+  width: 100%;
+  min-height: 52px;
+  margin: 10px 0 12px;
+  padding: 0 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #fff;
+  color: #0f172a;
+  font-size: 17px;
+  font-weight: 900;
+  outline: none;
+}
+
+.password-input:focus {
+  border-color: #0f172a;
+  box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.08);
+}

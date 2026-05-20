@@ -19,6 +19,7 @@ const firebaseConfig = {
 
 const CLASSES = ["가람반", "나리반", "다솜반", "라온반", "마루반", "바름반", "사랑반"];
 const SET_COUNT = 5;
+const ADMIN_PASSWORD = "1234"; // 여기 숫자를 원하는 관리자 비밀번호로 바꾸세요.
 const WRITE_TIMEOUT_MS = 8000;
 
 const firebaseApp = initializeApp(firebaseConfig);
@@ -116,14 +117,17 @@ export default function App() {
   const [error, setError] = useState("");
   const [lastSaved, setLastSaved] = useState("");
   const [saving, setSaving] = useState(false);
+  const [adminPassword, setAdminPassword] = useState("");
+  const [adminUnlocked, setAdminUnlocked] = useState(false);
 
   const selectedBoth = teamA && teamB && teamA !== teamB;
   const completeSets = sets.every(Boolean);
   const aSetWins = sets.filter((winner) => winner === teamA).length;
   const bSetWins = sets.filter((winner) => winner === teamB).length;
   const matchWinner = selectedBoth && completeSets ? (aSetWins > bSetWins ? teamA : teamB) : "";
-  const canSubmit = isAdmin && selectedBoth && completeSets && aSetWins !== bSetWins && !saving;
+  const canSubmit = canEdit && selectedBoth && completeSets && aSetWins !== bSetWins && !saving;
   const ranking = useMemo(() => sortTeams(teams), [teams]);
+  const canEdit = isAdmin && adminUnlocked;
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -236,7 +240,7 @@ export default function App() {
   }
 
   async function resetAll() {
-    if (!isAdmin) return;
+    if (!canEdit) return;
     if (!window.confirm("모든 경기 기록과 순위를 초기화할까요?")) return;
 
     const emptyTeams = buildInitialTeams();
@@ -260,7 +264,7 @@ export default function App() {
           <div className="logo">🏀</div>
           <div>
             <h1>4학년 농구 리그전</h1>
-            <p>{isAdmin ? "관리자 입력 화면" : "실시간 순위표"}</p>
+            <p>{isAdmin ? "관리자 화면" : "실시간 순위표"}</p>
             <p className={statusClass}>{status}</p>
             {lastSaved && <p className="last-saved">마지막 저장: {lastSaved}</p>}
           </div>
@@ -273,7 +277,7 @@ export default function App() {
           </section>
         )}
 
-        {isAdmin && (
+        {canEdit && (
           <section className="card">
             <div className="select-grid">
               <label>
@@ -346,7 +350,7 @@ export default function App() {
         <section className="card">
           <div className="section-head">
             <h2>🏆 순위</h2>
-            {isAdmin && <button className="reset-button" type="button" onClick={resetAll}>초기화</button>}
+            {canEdit && <button className="reset-button" type="button" onClick={resetAll}>초기화</button>}
           </div>
 
           <div className="podium">
