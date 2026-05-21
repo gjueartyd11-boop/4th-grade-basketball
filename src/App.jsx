@@ -74,6 +74,11 @@ function setScore(team) {
   return team.setWins + team.setDraws * 0.5;
 }
 
+function setScoreText(team) {
+  const score = setScore(team);
+  return Number.isInteger(score) ? String(score) : score.toFixed(1);
+}
+
 function setScoreGap(team, leader) {
   if (!leader || team.name === leader.name) return "-";
   const gap = setScore(leader) - setScore(team);
@@ -477,7 +482,7 @@ export default function App() {
                   <th>무</th>
                   <th>패</th>
                   <th>승률</th>
-                  <th>1위까지</th>
+                  <th>승점</th>
                   
                   
                 </tr>
@@ -492,7 +497,7 @@ export default function App() {
                     <td>{team.setDraws}</td>
                     <td>{team.setLosses}</td>
                     <td className="set-diff">{winRateText(team)}</td>
-                    <td>{toFirstSets(team, leader)}</td>
+                    <td>{setScoreText(team)}</td>
                     
                   </tr>
                 ))}
@@ -500,7 +505,7 @@ export default function App() {
             </table>
           </div>
 
-          <p className="rule-note">승률 = (세트승 + 세트무×0.5) ÷ 전체세트 / 1위까지 = 1위 승률까지 필요한 연속 승리 세트 수</p>
+          <p className="rule-note">승률 = (세트승 + 세트무×0.5) ÷ 전체세트 / 승점 = 세트승 + 세트무×0.5</p>
         </section>
 
         {history.length > 0 && (
