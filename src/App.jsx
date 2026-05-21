@@ -39,19 +39,66 @@ function normalizeTeams(teams) {
   });
 }
 
-function leaguePoints(team) { return team.wins * 3 + team.draws; }
-function winRate(team) { return team.games ? team.wins / team.games : 0; }
-function pointDiff(team) { return team.pointsFor - team.pointsAgainst; }
+function winRate(team) {
+  const decidedGames = team.wins + team.losses;
+  return decidedGames ? team.wins / decidedGames : 0;
+}
+
+function winRateText(team) {
+  const decidedGames = team.wins + team.losses;
+  return decidedGames ? winRate(team).toFixed(3).replace(/^0/, "") : "-";
+}
+
+function pointDiff(team) {
+  return team.pointsFor - team.pointsAgainst;
+}
 
 function sortTeams(teams) {
   return [...teams].sort((a, b) => {
-    if (leaguePoints(b) !== leaguePoints(a)) return leaguePoints(b) - leaguePoints(a);
     const rateDiff = winRate(b) - winRate(a);
     if (rateDiff !== 0) return rateDiff;
+    if (b.wins !== a.wins) return b.wins - a.wins;
     if (pointDiff(b) !== pointDiff(a)) return pointDiff(b) - pointDiff(a);
     if (b.pointsFor !== a.pointsFor) return b.pointsFor - a.pointsFor;
     return a.name.localeCompare(b.name, "ko");
   });
+}
+
+function gameBack(team, leader) {
+  if (!leader || team.name === leader.name) return "-";
+  const gb = ((leader.wins - team.wins) + (team.losses - leader.losses)) / 2;
+  return gb === 0 ? "-" : Number.isInteger(gb) ? String(gb) : gb.toFixed(1);
+}
+
+function getStreak(teamName, history) {
+  let streakType = "";
+  let count = 0;
+
+  for (const game of history) {
+    let result = "";
+    if (game.teamA === teamName) {
+      if (game.scoreA > game.scoreB) result = "승";
+      else if (game.scoreA < game.scoreB) result = "패";
+      else result = "무";
+    } else if (game.teamB === teamName) {
+      if (game.scoreB > game.scoreA) result = "승";
+      else if (game.scoreB < game.scoreA) result = "패";
+      else result = "무";
+    } else {
+      continue;
+    }
+
+    if (!streakType) {
+      streakType = result;
+      count = 1;
+    } else if (result === streakType) {
+      count += 1;
+    } else {
+      break;
+    }
+  }
+
+  return count ? `${count}${streakType}` : "-";
 }
 
 function firebaseErrorText(error) { return error ? `${error.code || "Firebase 오류"}: ${error.message || String(error)}` : ""; }
@@ -87,6 +134,7 @@ export default function App() {
   const bScore = Number(scoreB);
   const resultText = scoresReady ? (aScore > bScore ? `${teamA} 승리` : aScore < bScore ? `${teamB} 승리` : "무승부") : "";
   const ranking = useMemo(() => sortTeams(teams), [teams]);
+  const leader = ranking[0];
   const canEdit = isAdmin && adminUnlocked;
   const canSubmit = canEdit && selectedBoth && scoresReady && !saving;
 
@@ -201,9 +249,9 @@ export default function App() {
 
         <section className="card">
           <div className="section-head"><h2>🏆 순위</h2>{canEdit && <button className="reset-button" type="button" onClick={resetAll}>초기화</button>}</div>
-          <div className="podium">{ranking.slice(0, 3).map((team, index) => <div className={`podium-item top-${index + 1}`} key={team.name}><span>{index + 1}위</span><strong>{team.name}</strong><em>{leaguePoints(team)}점</em></div>)}</div>
-          <div className="table-wrap"><table><thead><tr><th>순위</th><th>반</th><th>승점</th><th>승</th><th>무</th><th>패</th><th>득실</th><th>득점</th></tr></thead><tbody>{ranking.map((team, index) => <tr key={team.name}><td className="rank">{index + 1}</td><td className="team-name">{team.name}</td><td className="set-diff">{leaguePoints(team)}</td><td>{team.wins}</td><td>{team.draws}</td><td>{team.losses}</td><td>{pointDiff(team)}</td><td>{team.pointsFor}</td></tr>)}</tbody></table></div>
-          <p className="rule-note">정렬: 승점 → 승률 → 득실차 → 총득점 / 승점: 승 3점, 무 1점, 패 0점</p>
+          <div className="podium">{ranking.slice(0, 3).map((team, index) => <div className={`podium-item top-${index + 1}`} key={team.name}><span>{index + 1}위</span><strong>{team.name}</strong><em>{winRateText(team)}</em></div>)}</div>
+          <div className="table-wrap"><table><thead><tr><th>순위</th><th>반</th><th>경기</th><th>승</th><th>무</th><th>패</th><th>승률</th><th>게임차</th><th>연속</th></tr></thead><tbody>{ranking.map((team, index) => <tr key={team.name}><td className="rank">{index + 1}</td><td className="team-name">{team.name}</td><td>{team.games}</td><td>{team.wins}</td><td>{team.draws}</td><td>{team.losses}</td><td className="set-diff">{winRateText(team)}</td><td>{gameBack(team, leader)}</td><td>{getStreak(team.name, history)}</td></tr>)}</tbody></table></div>
+          <p className="rule-note">프로야구식 정렬: 승률 → 승수 → 득실차 → 총득점 / 승률은 무승부 제외</p>
         </section>
 
         {history.length > 0 && <section className="card"><h2>{isAdmin ? "입력된 경기" : "최근 경기 결과"}</h2><div className="history-list">{history.slice(0, isAdmin ? history.length : 5).map((game) => <div className="history-card" key={game.id}><strong>{game.teamA} {game.scoreA} : {game.scoreB} {game.teamB}</strong><span>{game.result}</span><small>{game.createdAt}</small></div>)}</div></section>}
