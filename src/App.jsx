@@ -373,7 +373,7 @@ export default function App() {
                 <div className="set-list">
                   {sets.map((winner, index) => (
                     <div className="set-card" key={index}>
-                      <div className="set-title">{index + 1}세트 · {SET_LABELS[index]}</div>
+                      <div className="set-title">세트{index + 1} 승리반</div>
                       <div className="winner-buttons three">
                         {[teamA, "무승부", teamB].map((name) => (
                           <button
@@ -455,7 +455,7 @@ export default function App() {
             </table>
           </div>
 
-          <p className="rule-note">KBO 스타일 표시 / 승률 = (세트승 + 세트무×0.5) ÷ 전체세트</p>
+          <p className="rule-note">승률 = (세트승 + 세트무×0.5) ÷ 전체세트</p>
         </section>
 
         {history.length > 0 && (
