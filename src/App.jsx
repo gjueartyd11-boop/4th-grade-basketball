@@ -70,6 +70,16 @@ function setDiff(team) {
   return team.setWins - team.setLosses;
 }
 
+function setScore(team) {
+  return team.setWins + team.setDraws * 0.5;
+}
+
+function setScoreGap(team, leader) {
+  if (!leader || team.name === leader.name) return "-";
+  const gap = setScore(leader) - setScore(team);
+  return gap === 0 ? "-" : Number.isInteger(gap) ? String(gap) : gap.toFixed(1);
+}
+
 function gameCount(team) {
   return team.matchWins + team.matchDraws + team.matchLosses;
 }
@@ -92,9 +102,7 @@ function gameBack(team, leader) {
 }
 
 function setGap(team, leader) {
-  if (!leader || team.name === leader.name) return "-";
-  const gap = ((leader.setWins - team.setWins) + (team.setLosses - leader.setLosses)) / 2;
-  return gap === 0 ? "-" : Number.isInteger(gap) ? String(gap) : gap.toFixed(1);
+  return setScoreGap(team, leader);
 }
 
 function getStreak(teamName, history) {
@@ -452,7 +460,7 @@ export default function App() {
                     <td>{team.setDraws}</td>
                     <td>{team.setLosses}</td>
                     <td className="set-diff">{winRateText(team)}</td>
-                    <td>{setGap(team, leader)}</td>
+                    <td>{setScoreGap(team, leader)}</td>
                     
                   </tr>
                 ))}
@@ -460,7 +468,7 @@ export default function App() {
             </table>
           </div>
 
-          <p className="rule-note">승률 = (세트승 + 세트무×0.5) ÷ 전체세트 / 세트차 = 1위 기준 필요 세트 수</p>
+          <p className="rule-note">승률 = (세트승 + 세트무×0.5) ÷ 전체세트 / 세트차 = 1위와의 세트점수 차</p>
         </section>
 
         {history.length > 0 && (
