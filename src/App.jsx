@@ -82,9 +82,21 @@ function setScoreGap(team, leader) {
 
 function toFirstSets(team, leader) {
   if (!leader || team.name === leader.name) return "-";
-  const gap = setScore(leader) - setScore(team);
-  if (gap <= 0) return "-";
-  return String(Math.ceil(gap));
+
+  const targetRate = winRate(leader);
+  const currentRate = winRate(team);
+
+  if (currentRate >= targetRate) return "-";
+
+  const currentScore = setScore(team);
+  const currentTotal = totalSets(team);
+
+  if (targetRate >= 1) return "불가";
+
+  if (currentTotal === 0) return targetRate > 0 ? "1" : "-";
+
+  const needed = Math.ceil(((targetRate * currentTotal) - currentScore) / (1 - targetRate));
+  return String(Math.max(1, needed));
 }
 
 function gameCount(team) {
@@ -101,6 +113,19 @@ function sortTeams(teams) {
     return a.name.localeCompare(b.name, "ko");
   });
 }
+
+function isSameRank(a, b) {
+  if (!a || !b) return false;
+  return Math.abs(winRate(a) - winRate(b)) < 0.000001;
+}
+
+function rankNumber(sortedTeams, index) {
+  if (index === 0) return 1;
+  return isSameRank(sortedTeams[index], sortedTeams[index - 1])
+    ? rankNumber(sortedTeams, index - 1)
+    : index + 1;
+}
+
 
 function gameBack(team, leader) {
   if (!leader || team.name === leader.name) return "-";
@@ -434,7 +459,7 @@ export default function App() {
           <div className="podium">
             {ranking.slice(0, 3).map((team, index) => (
               <div className={`podium-item top-${index + 1}`} key={team.name}>
-                <span>{index + 1}위</span>
+                <span>{rankNumber(ranking, index)}위</span>
                 <strong>{team.name}</strong>
                 <em>{winRateText(team)}</em>
               </div>
@@ -460,7 +485,7 @@ export default function App() {
               <tbody>
                 {ranking.map((team, index) => (
                   <tr key={team.name}>
-                    <td className="rank">{index + 1}</td>
+                    <td className="rank">{rankNumber(ranking, index)}</td>
                     <td className="team-name">{team.name}</td>
                     <td>{gameCount(team)}</td>
                     <td>{team.setWins}</td>
@@ -475,7 +500,7 @@ export default function App() {
             </table>
           </div>
 
-          <p className="rule-note">승률 = (세트승 + 세트무×0.5) ÷ 전체세트 / 1위까지 = 1위 세트점수까지 필요한 최소 세트 수</p>
+          <p className="rule-note">승률 = (세트승 + 세트무×0.5) ÷ 전체세트 / 1위까지 = 1위 승률까지 필요한 연속 승리 세트 수</p>
         </section>
 
         {history.length > 0 && (
