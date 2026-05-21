@@ -80,6 +80,13 @@ function setScoreGap(team, leader) {
   return gap === 0 ? "-" : Number.isInteger(gap) ? String(gap) : gap.toFixed(1);
 }
 
+function toFirstSets(team, leader) {
+  if (!leader || team.name === leader.name) return "-";
+  const gap = setScore(leader) - setScore(team);
+  if (gap <= 0) return "-";
+  return String(Math.ceil(gap));
+}
+
 function gameCount(team) {
   return team.matchWins + team.matchDraws + team.matchLosses;
 }
@@ -445,7 +452,7 @@ export default function App() {
                   <th>무</th>
                   <th>패</th>
                   <th>승률</th>
-                  <th>세트차</th>
+                  <th>1위까지</th>
                   
                   
                 </tr>
@@ -460,7 +467,7 @@ export default function App() {
                     <td>{team.setDraws}</td>
                     <td>{team.setLosses}</td>
                     <td className="set-diff">{winRateText(team)}</td>
-                    <td>{setScoreGap(team, leader)}</td>
+                    <td>{toFirstSets(team, leader)}</td>
                     
                   </tr>
                 ))}
@@ -468,7 +475,7 @@ export default function App() {
             </table>
           </div>
 
-          <p className="rule-note">승률 = (세트승 + 세트무×0.5) ÷ 전체세트 / 세트차 = 1위와의 세트점수 차</p>
+          <p className="rule-note">승률 = (세트승 + 세트무×0.5) ÷ 전체세트 / 1위까지 = 1위 세트점수까지 필요한 최소 세트 수</p>
         </section>
 
         {history.length > 0 && (
