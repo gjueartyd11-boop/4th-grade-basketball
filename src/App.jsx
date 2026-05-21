@@ -438,7 +438,7 @@ export default function App() {
                   <th>패</th>
                   <th>승률</th>
                   <th>세트차</th>
-                  <th>연속</th>
+                  
                   
                 </tr>
               </thead>
@@ -453,7 +453,7 @@ export default function App() {
                     <td>{team.setLosses}</td>
                     <td className="set-diff">{winRateText(team)}</td>
                     <td>{setGap(team, leader)}</td>
-                    <td>{getStreak(team.name, history)}</td>
+                    
                   </tr>
                 ))}
               </tbody>
