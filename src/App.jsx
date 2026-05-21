@@ -143,8 +143,13 @@ function sortTeams(teams) {
   return [...teams].sort((a, b) => {
     const rateDiff = winRate(b) - winRate(a);
     if (rateDiff !== 0) return rateDiff;
-    if (b.matchWins !== a.matchWins) return b.matchWins - a.matchWins;
-    if (setDiff(b) !== setDiff(a)) return setDiff(b) - setDiff(a);
+
+    const avgPointDiff = averageScoreRaw(b) - averageScoreRaw(a);
+    if (avgPointDiff !== 0) return avgPointDiff;
+
+    const diff = setDiff(b) - setDiff(a);
+    if (diff !== 0) return diff;
+
     if (b.setWins !== a.setWins) return b.setWins - a.setWins;
     return a.name.localeCompare(b.name, "ko");
   });
@@ -152,7 +157,8 @@ function sortTeams(teams) {
 
 function isSameRank(a, b) {
   if (!a || !b) return false;
-  return Math.abs(winRate(a) - winRate(b)) < 0.000001;
+  return Math.abs(winRate(a) - winRate(b)) < 0.000001
+    && Math.abs(averageScoreRaw(a) - averageScoreRaw(b)) < 0.000001;
 }
 
 function rankNumber(sortedTeams, index) {
@@ -513,7 +519,7 @@ export default function App() {
                   <th>무</th>
                   <th>패</th>
                   <th>승률</th>
-                  <th>평균승점</th><th>필요세트차</th>
+                  <th>평균승점</th>
                   
                   
                 </tr>
@@ -528,7 +534,7 @@ export default function App() {
                     <td>{team.setDraws}</td>
                     <td>{team.setLosses}</td>
                     <td className="set-diff">{winRateText(team)}</td>
-                    <td>{setScoreText(team)}</td><td>{neededSetDiff(team, leader)}</td>
+                    <td>{setScoreText(team)}</td>
                     
                   </tr>
                 ))}
@@ -539,7 +545,6 @@ export default function App() {
           <div className="rule-note rule-note-lines">
             <p>승률 = (세트승 + 세트무×0.5) ÷ 전체세트</p>
             <p>평균승점 = (세트승 + 세트무×0.5 - 세트패) ÷ 경기수</p>
-            <p>필요세트차 = 남은 경기에서 1위 평균승점까지 필요한 세트 우위</p>
           </div>
         </section>
 
