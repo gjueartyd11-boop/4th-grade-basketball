@@ -431,9 +431,9 @@ export default function App() {
                   <th>무</th>
                   <th>패</th>
                   <th>승률</th>
-                  <th>게임차</th>
+                  <th>세트차</th>
                   <th>연속</th>
-                  <th>세트득실</th>
+                  <th>세트기록</th>
                 </tr>
               </thead>
               <tbody>
@@ -446,16 +446,16 @@ export default function App() {
                     <td>{team.matchDraws}</td>
                     <td>{team.matchLosses}</td>
                     <td className="set-diff">{winRateText(team)}</td>
-                    <td>{gameBack(team, leader)}</td>
-                    <td>{getStreak(team.name, history)}</td>
                     <td>{setDiff(team)}</td>
+                    <td>{getStreak(team.name, history)}</td>
+                    <td>{team.setWins}-{team.setDraws}-{team.setLosses}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          <p className="rule-note">승률 = (세트승 + 세트무×0.5) ÷ 전체세트</p>
+          <p className="rule-note">승률 = (세트승 + 세트무×0.5) ÷ 전체세트 / 세트차 = 세트승 - 세트패</p>
         </section>
 
         {history.length > 0 && (
