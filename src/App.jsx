@@ -75,7 +75,7 @@ function setScore(team) {
 }
 
 function setScoreText(team) {
-  const score = setScore(team);
+  const score = team.setWins + (team.setDraws * 0.5) - team.setLosses;
   return Number.isInteger(score) ? String(score) : score.toFixed(1);
 }
 
@@ -505,7 +505,7 @@ export default function App() {
             </table>
           </div>
 
-          <p className="rule-note">승률 = (세트승 + 세트무×0.5) ÷ 전체세트 / 승점 = 세트승 + 세트무×0.5</p>
+          <p className="rule-note">승률 = (세트승 + 세트무×0.5) ÷ 전체세트 / 승점 = 세트승 + 세트무×0.5 - 세트패</p>
         </section>
 
         {history.length > 0 && (
