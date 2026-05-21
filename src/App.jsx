@@ -91,6 +91,12 @@ function gameBack(team, leader) {
   return gb === 0 ? "-" : Number.isInteger(gb) ? String(gb) : gb.toFixed(1);
 }
 
+function setGap(team, leader) {
+  if (!leader || team.name === leader.name) return "-";
+  const gap = ((leader.setWins - team.setWins) + (team.setLosses - leader.setLosses)) / 2;
+  return gap === 0 ? "-" : Number.isInteger(gap) ? String(gap) : gap.toFixed(1);
+}
+
 function getStreak(teamName, history) {
   let streakType = "";
   let count = 0;
@@ -433,7 +439,7 @@ export default function App() {
                   <th>승률</th>
                   <th>세트차</th>
                   <th>연속</th>
-                  <th>세트기록</th>
+                  
                 </tr>
               </thead>
               <tbody>
@@ -442,20 +448,19 @@ export default function App() {
                     <td className="rank">{index + 1}</td>
                     <td className="team-name">{team.name}</td>
                     <td>{gameCount(team)}</td>
-                    <td>{team.matchWins}</td>
-                    <td>{team.matchDraws}</td>
-                    <td>{team.matchLosses}</td>
+                    <td>{team.setWins}</td>
+                    <td>{team.setDraws}</td>
+                    <td>{team.setLosses}</td>
                     <td className="set-diff">{winRateText(team)}</td>
-                    <td>{setDiff(team)}</td>
+                    <td>{setGap(team, leader)}</td>
                     <td>{getStreak(team.name, history)}</td>
-                    <td>{team.setWins}-{team.setDraws}-{team.setLosses}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          <p className="rule-note">승률 = (세트승 + 세트무×0.5) ÷ 전체세트 / 세트차 = 세트승 - 세트패</p>
+          <p className="rule-note">승률 = (세트승 + 세트무×0.5) ÷ 전체세트 / 세트차 = 1위 기준 필요 세트 수</p>
         </section>
 
         {history.length > 0 && (
