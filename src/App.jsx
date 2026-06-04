@@ -22,7 +22,7 @@ const db = initializeFirestore(firebaseApp, {
   experimentalForceLongPolling: true,
   useFetchStreams: false,
 });
-const leagueDocRef = doc(db, "leagues", "grade4-basketball");
+const leagueDocRef = doc(db, "leagues", "grade4-netball");
 
 function buildInitialTeams() {
   return CLASSES.map((name) => ({
@@ -390,9 +390,9 @@ export default function App() {
     <main className="page">
       <section className="app-shell">
         <header className="header">
-          <div className="logo">🏀</div>
+          <div className="logo">🥅</div>
           <div>
-            <h1>4학년 농구 리그전</h1>
+            <h1>4학년 넷볼 리그전</h1>
             <p>{isAdmin ? "관리자 화면" : "실시간 순위표"}</p>
             <p className={statusClass}>{status}</p>
             {lastSaved && <p className="last-saved">마지막 저장: {lastSaved}</p>}
