@@ -393,7 +393,7 @@ export default function App() {
           <div className="logo">🥅</div>
           <div>
             <h1>4학년 넷볼 리그전</h1>
-            <p>{isAdmin ? "관리자 화면" : "실시간 순위표"}</p>
+            <p>{isAdmin ? "관리자 화면" : "다치지 말고 화내지 말고 즐기는 마음으로!"}</p>
             <p className={statusClass}>{status}</p>
             {lastSaved && <p className="last-saved">마지막 저장: {lastSaved}</p>}
           </div>
