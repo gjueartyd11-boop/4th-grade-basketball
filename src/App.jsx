@@ -563,7 +563,7 @@ export default function App() {
           </section>
         )}
 
-        {!isAdmin && <p className="viewer-note">학생용 화면입니다. 경기 결과 입력은 관리자만 가능합니다.</p>}
+        {!isAdmin && <p className="viewer-note">2026년 나래초등학교 4학년 1학기 간이 넷볼 리그전</p>}
       </section>
     </main>
   );
